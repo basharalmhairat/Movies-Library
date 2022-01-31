@@ -1,38 +1,38 @@
 'use strict';
 const express =require('express');
 const cors =require('cors');
-
 const Server= express();
 Server.use(cors());
-const { response } = require('express');
-const { redirect } = require('express/lib/response');
+
  
-const data =require('movies data/data.json')
+let moviesdata =require('./moviesdata/data.json')
 
-function fav(id,name,image ){
-this.id =id;
-this.name=name;
-this.image=this.image
+function Fav(title,poster_path,overview ){
+this.title =title;
+this.poster_path=poster_path;
+this.overview=overview;
 }
-function fff (req,res){
-    let favirot=[];
-    data.data.forEach(val => {
-       let arr=new fav (val.id,val.name,val.image) 
-    });
-    return res.status(200).json(favirot);
+function homePage (req,res){ 
+       let arr=new Fav (moviesdata.title,moviesdata.poster_path,moviesdata.overview) ;
+    return res.status(200).json(arr);
 }
-Server.get('/',handelError)
+Server.get('/favorite',handelFavorite)
 
-function handelError(req,res){
-return res,status(500).send("sorry somthing went wrong") 
-}
-Server.get('/',handelError2)
+function handelFavorite(req,res){
+return res.status(200).send("welcome to my favorite page") ;
+ }
+  Server.get('/',handelError)
+
+ function handelError(req,res){
+  return res.status(500).send("sorry somthing went wrong") ;
+  }
+ Server.get('/',handelError2)
 
 function handelError2(req,res){
-return res,status(404).send("page not found ") 
+return res.status(404).send("page not found ") ;
 }
 
 Server.listen(3000,() =>{
-console.log  ('my server worke');
+console.log  ('my server working');
 }
 )
