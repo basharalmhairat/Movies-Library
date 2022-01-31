@@ -9,10 +9,10 @@ Add an image of your WRRC here.
 ## Overview
 
 ## Getting Started
-1.npm init -y to install the jason backeg.
-2.then we install express cors.
-3.then js first we need to conecct with the packegs express,cors.
-4.we use get and /--- so we can handle error and enter anather page.
+.to start first from ubnut using npm start
+then go to google chrom inter localhost:3000
+
+
 
 ## Project Features
 for  now not that much but it include how to handel with error 404.500 .
