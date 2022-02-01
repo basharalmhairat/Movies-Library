@@ -5,7 +5,7 @@ const PORT = 3000;
 const Server= express();
 const axios =require('axios');
 Server.use(cors());
-let url = `https://www.themoviedb.org/movie/634649-spider-man-no-way-home?api_key=78adfdabd78ae095f7ac8f72a8aac158`;
+let url = `https://api.themoviedb.org/3/trending/all/week?api_key=78adfdabd78ae095f7ac8f72a8aac158&language=en-US`;
 
 function Movihit(id, title, release_date, poster_path, overview){
     this.id = id;
@@ -21,7 +21,7 @@ this.overview=overview;
 }
 function homePage (req,res){ 
        let arr=new Fav (moviesdata.title,moviesdata.poster_path,moviesdata.overview) ;
-    return res.status(200).json(arr);
+    return res.status(200).json(error);
 }
 Server.get('/trending',trendmovie);
 function trendmovie(req,res){
@@ -33,6 +33,7 @@ axios.get(url)
     })
     resu.status(200).json(newArr);
 }).catch((err)=>{
+    handelError(err,req,res);
 }
 )
 }
@@ -40,7 +41,7 @@ axios.get(url)
 
 Server.get('/search',searchmovie);
 function searchmovie(req,res){
-    let url = `https://www.themoviedb.org/movie/634649-spider-man-no-way-home?api_key=78adfdabd78ae095f7ac8f72a8aac158`;
+    let url = `https://api.themoviedb.org/3/search/movie?api_key=78adfdabd78ae095f7ac8f72a8aac158&language=en-US&query=The&page=2`;
     axios.get(url)
     .then(res=>{
         let trending = resu.data.trending.map(tren =>{
@@ -48,7 +49,7 @@ function searchmovie(req,res){
         });
         res.status(200).json(tren);  
      }).catch(err=>{
-
+        handelError(err,req,res);
     })
 }
 
@@ -56,11 +57,15 @@ Server.get('/favorite',handelFavorite);
 function handelFavorite(req,res){
 return res.status(200).send("welcome to my favorite page") ;
  }
-  Server.get('/',handelError);
- function handelError(req,res){
-  return res.status(500).send("sorry somthing went wrong") ;
+  Server.use(handelError);
+ function handelError(error,req,res){
+     const err = {
+         status:500,
+         message:error
+     }
+   res.status(500).send(err) ;
   }
- Server.get('*',handelError2);
+ Server.use('*',handelError2);
 function handelError2(req,res){
 return res.status(404).send("page not found ") ;
 }
