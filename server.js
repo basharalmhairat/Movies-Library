@@ -53,6 +53,39 @@ function searchmovie(req,res){
     })
 }
 
+Server.get('/tv',searchtv);
+function searchtv(req,res){
+    let newTv = [];
+    let url = `https://api.themoviedb.org/3/tv/{tv_id}/season/{season_number}?api_key=78adfdabd78ae095f7ac8f72a8aac158&language=en-US`;
+    axios.get(url)
+    .then(res=>{
+        resu.data.searchtv.forEach(tren =>{
+            newTv.push(new Movihit(tren.id,tren.title,tren.release_date,tren.overview));
+        
+        });
+        res.status(200).json(tren);  
+     }).catch(err=>{
+        handelError(err,req,res);
+    })
+}
+
+Server.get('/episode',tvepisode);
+function tvepisode(req,res){
+    let newep = [];
+    let url = `https://api.themoviedb.org/3/tv/{tv_id}/season/{season_number}/episode/{episode_number}?api_key=78adfdabd78ae095f7ac8f72a8aac158&language=en-US`;
+    axios.get(url)
+    .then(res=>{
+        resu.data.tvepisode.forEach(tren =>{
+            newTv.push(new Movihit(tren.id,tren.title,tren.release_date,tren.overview));
+        
+        });
+        res.status(200).json(tren);  
+     }).catch(err=>{
+        handelError(err,req,res);
+    })
+}
+
+
 Server.get('/favorite',handelFavorite);
 function handelFavorite(req,res){
 return res.status(200).send("welcome to my favorite page") ;
