@@ -6,12 +6,14 @@ const PORT = 3000;
 const Server = express();
 const axios = require('axios');
 Server.use(cors());
+Server.use(express.json());
 const pg = require('pg');
-let url = `https://api.themoviedb.org/3/trending/all/week?api_key=78adfdabd78ae095f7ac8f72a8aac158&language=en-US`;
+let url = `https://api.themoviedb.org/3/trending/all/week?api_key=${process.env.ABIKEY}&language=en-US`;
 
 
 const client = new pg.Client(process.env.DATABASE_URL);
 
+Server.get('/homepage1', homePage);
 Server.get('/trending', trendmovie);
 Server.get('/search', searchmovie);
 Server.get('/tv', searchtv);
@@ -20,6 +22,10 @@ Server.post('/favorite', handelFavorite);
 
 Server.post('/addmovie', handeladdmovie);
 Server.get('/getmovie', handelgetmovie);
+
+Server.get('/onemovie/:id', onemovieHandler);
+Server.put('/updatemovie/:id/:name', updatemovieHandler);
+Server.delete('/deletemovie/:id', deletemovieHandler);
 
 Server.use(handelError);
 Server.use('*', handelError2);
@@ -40,19 +46,19 @@ function Fav(title, poster_path, overview) {
 }
 function homePage(req, res) {
     let arr = new Fav(moviesdata.title, moviesdata.poster_path, moviesdata.overview);
-    return res.status(200).json(error);
+    return res.status(200).json(arr);
 }
 
 function trendmovie(req, res) {
     let newArr = [];
     axios.get(url)
-        .then((resu) => {
-            resu.data.trending.forEach(tren => {
+        .then((result) => {
+            result.data.results.forEach(tren => {
                 newArr.push(new Movihit(tren.id, tren.title, tren.release_date, tren.overview));
             })
-            resu.status(200).json(newArr);
-        }).catch((err) => {
-            handelError(err, req, res);
+            res.status(200).json(newArr);
+        }).catch((error) => {
+            handelError(error, req, res);
         }
         )
 }
@@ -60,69 +66,104 @@ function trendmovie(req, res) {
 
 
 function searchmovie(req, res) {
-    let url = `https://api.themoviedb.org/3/search/movie?api_key=78adfdabd78ae095f7ac8f72a8aac158&language=en-US&query=The&page=2`;
+    let userSearch = req.query.userSearch;
+    console.log(userSearch);
+    let url = `https://api.themoviedb.org/3/search/movie?api_key=${process.env.ABIKEY}&language=en-US&query=${userSearch}&page=2`;
     axios.get(url)
         .then(res => {
-            let trending = resu.data.trending.map(tren => {
-                return new mov(tren.id, tren.title, tren.release_date, tren.overview);
+            let tren = res.data.trending.map(mov => {
+                return new mov(mov.id, mov.title, mov.release_date, mov.overview);
             });
             res.status(200).json(tren);
-        }).catch(err => {
-            handelError(err, req, res);
+        }).catch(error => {
+            handelError(error, req, res);
         })
 }
 
 
 function searchtv(req, res) {
     let newTv = [];
-    let url = `https://api.themoviedb.org/3/tv/{tv_id}/season/{season_number}?api_key=78adfdabd78ae095f7ac8f72a8aac158&language=en-US`;
+    let url = `https://api.themoviedb.org/3/tv/{tv_id}/season/{season_number}?api_key=${process.env.ABIKEY}&language=en-US`;
     axios.get(url)
         .then(res => {
             resu.data.searchtv.forEach(tren => {
                 newTv.push(new Movihit(tren.id, tren.title, tren.release_date, tren.overview));
 
             });
-            res.status(200).json(tren);
-        }).catch(err => {
-            handelError(err, req, res);
+            res.status(200).json(newTv);
+        }).catch(error => {
+            handelError(error, req, res);
         })
 }
 
 
 function tvepisode(req, res) {
     let newep = [];
-    let url = `https://api.themoviedb.org/3/tv/{tv_id}/season/{season_number}/episode/{episode_number}?api_key=78adfdabd78ae095f7ac8f72a8aac158&language=en-US`;
+    let url = `https://api.themoviedb.org/3/tv/{tv_id}/season/{season_number}/episode/{episode_number}?api_key=${process.env.ABIKEY}&language=en-US`;
     axios.get(url)
         .then(res => {
             resu.data.tvepisode.forEach(tren => {
-                newTv.push(new Movihit(tren.id, tren.title, tren.release_date, tren.overview));
+                newep.push(new Movihit(tren.id, tren.title, tren.release_date, tren.overview));
 
             });
-            res.status(200).json(tren);
-        }).catch(err => {
-            handelError(err, req, res);
+            res.status(200).json(newep);
+        }).catch(error => {
+            handelError(error, req, res);
         })
 }
 
-function handeladdmovie(req,res){
+function handeladdmovie(req, res) {
     const mov = req.body;
-    let sql = `INSERT INTO movies(title,id,release_date,poster_path,overview) VALUES ($1,$2,$3,$4,$5) RETURNING *;`
-    let values=[Movihit.title,Movihit.release_date,Movihit.poster_path,Movihit.overview];
-    client.query(sql,values).then(data =>{
+    let sql = `INSERT INTO movies(title,release_date,poster_path,overview) VALUES ($1,$2,$3,$4,) RETURNING *;`
+    let values = [mov.title, mov.release_date, mov.poster_path, mov.overview];
+    client.query(sql, values).then(data => {
         res.status(200).json(data.rows);
-    }).catch(error=>{
-        errorHandler(error,req,res)
+    }).catch(error => {
+        handelError(error, req, res)
     });
-  }
+}
 
 
-  
-function handelgetmovie(req,res){
+
+function handelgetmovie(req, res) {
     let sql = `SELECT * FROM movies;`;
-    client.query(sql).then(data=>{
-       res.status(200).json(data.rows);
-    }).catch(error=>{
-        errorHandler(error,req,res)
+    client.query(sql).then(data => {
+        res.status(200).json(data.rows);
+    }).catch(error => {
+        handelError(error, req, res)
+    });
+}
+
+function onemovieHandler(req, res) {
+
+    let sql = `SELECT * FROM movies WHERE id=${req.Dune.id};`;
+    client.query(sql).then(data => {
+        res.status(200).json(data.rows);
+    }).catch(error => {
+        handelError(error, req, res)
+    });
+}
+
+function updatemovieHandler(req, res) {
+    const id = req.Dune.id;
+    console.log(req.Dune.name);
+    const movieli = req.body;
+    const sql = `UPDATE movies SET title =$1, release_date = $2, poster_path = $3 ,overview = $4,id=$7 RETURNING *;`;
+    let values = [movieli.title, movieli.release_date, movieli.poster_path, movieli.overview, id];
+    client.query(sql, values).then(data => {
+        res.status(200).json(data.rows);
+    }).catch(error => {
+        handelError(error, req, res)
+    });
+}
+
+function deletemovieHandler(req, res) {
+    const id = req.params.id;
+    const sql = `DELETE FROM movies WHERE id=${id};`
+    client.query(sql).then(() => {
+        res.status(200).send("The movie has been deleted");
+    }).catch(error => {
+        handelError(error, req, res)
     });
 }
 
@@ -133,9 +174,9 @@ function handelFavorite(req, res) {
 function handelError(error, req, res) {
     const err = {
         status: 500,
-        message: error
+        messgae: error
     }
-    res.status(500).send(error);
+    res.status(500).send(err);
 }
 
 function handelError2(req, res) {
