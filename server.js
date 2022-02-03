@@ -66,18 +66,19 @@ function trendmovie(req, res) {
 
 
 function searchmovie(req, res) {
-    let userSearch = req.query.userSearch;
-    console.log(userSearch);
-    let url = `https://api.themoviedb.org/3/search/movie?api_key=${process.env.ABIKEY}&language=en-US&query=${userSearch}&page=2`;
+    // let userSearch = req.query.userSearch;
+    // console.log(userSearch);
+    let url = `https://api.themoviedb.org/3/search/movie?api_key=${process.env.ABIKEY}&language=en-US&query=spiderman&page=2`;
+    console.log(url);
     axios.get(url)
         .then(res => {
-            let tren = res.data.trending.map(mov => {
-                return new mov(mov.id, mov.title, mov.release_date, mov.overview);
+            let tren = res.data.results.map(mov => {
+                return new Movihit(mov.id, mov.title, mov.release_date, mov.overview);
             });
             res.status(200).json(tren);
         }).catch(error => {
             handelError(error, req, res);
-        })
+        });
 }
 
 
@@ -93,7 +94,7 @@ function searchtv(req, res) {
             res.status(200).json(newTv);
         }).catch(error => {
             handelError(error, req, res);
-        })
+        });
 }
 
 
@@ -170,13 +171,19 @@ function deletemovieHandler(req, res) {
 function handelFavorite(req, res) {
     return res.status(200).send("welcome to my favorite page");
 }
+function Error(status, responseText) {
+    this.status = status;
+    this.responseText = responseText;
+}
 
 function handelError(error, req, res) {
-    const err = {
-        status: 500,
-        messgae: error
-    }
-    res.status(500).send(err);
+    let obj = new Error(500, `${error}`);
+    res.status(500).send(obj);
+    // const err = {
+    //     status: 500,
+    //     messgae: error
+    // }
+    //  res.status(500).send(obj);
 }
 
 function handelError2(req, res) {
