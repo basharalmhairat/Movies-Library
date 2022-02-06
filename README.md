@@ -4,8 +4,7 @@
 **Author Name**: Bashar almhairat
 
 ## WRRC
-Add an image of your WRRC here.
-
+![moviescyccle](moviesdata/web request response cycle.png)
 ## Overview
 
 ## Getting Started
