@@ -73,7 +73,7 @@ function searchmovie(req, res) {
     axios.get(url)
         .then(res => {
             let tren = res.data.results.map(mov => {
-                return new Movihit(mov.id, mov.title, mov.release_date, mov.overview);
+                 new Movihit(mov.id, mov.title, mov.release_date, mov.overview);
             });
             res.status(200).json(tren);
         }).catch(error => {
