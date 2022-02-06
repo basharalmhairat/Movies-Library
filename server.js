@@ -16,8 +16,8 @@ const client = new pg.Client(process.env.DATABASE_URL);
 Server.get('/', homePage);
 Server.get('/trending', trendmovie);
 Server.get('/search', searchmovie);
-Server.get('/tv', searchtv);
-Server.get('/episode', tvepisode);
+Server.get('/toprated', movietoprated);
+Server.get('/popular', popularmovie);
 Server.get('/favorite', handelFavorite);
 
 Server.post('/addmovie', handeladdmovie);
@@ -85,13 +85,14 @@ function searchmovie(req, res) {
 }
 
 
-function searchtv(req, res) {
+function movietoprated(req, res) {
     let newArr = [];
-    let url = `https://api.themoviedb.org/3/search/tv?api_key=${process.env.ABIKEY}&language=en-US&page=1&include_adult=false`;
+    let url = `https://api.themoviedb.org/3/movie/top_rated?api_key=${process.env.ABIKEY}&language=en-US&page=1&include_adult=false`;
+    console.log(req);
     axios.get(url)
     .then((result) => {
         result.data.results.forEach(tren => {
-            newArr.push(new Movihit(tren.id, tren.title, tren.release_date, tren.overview));
+            newArr.push(new Movihit(tren.id,tren.name, tren.title, tren.release_date, tren.overview));
         })
         res.status(200).json(newArr);
     }).catch((error) => {
@@ -101,10 +102,11 @@ function searchtv(req, res) {
 }
 
 
-function tvepisode(req, res) {
+function popularmovie(req, res) {
     let newArr = [];
-    let url = `https://api.themoviedb.org/3/search/person?api_key=${process.env.ABIKEY}&language=en-US&page=1&include_adult=false`;
+    let url = `https://api.themoviedb.org/3/movie/popular?api_key=${process.env.ABIKEY}&language=en-US&page=1&include_adult=false`;
     axios.get(url)
+    
     .then((result) => {
         result.data.results.forEach(tren => {
             newArr.push(new Movihit(tren.id, tren.title, tren.release_date, tren.overview));
@@ -150,7 +152,6 @@ function onemovieHandler(req, res) {
 
 function updatemovieHandler(req, res) {
      const id = req.params.id;
-    
     const movieli = req.body;
     const sql = `UPDATE movies SET title =$1, release_date = $2, poster_path = $3 ,overview =$4 WHERE id=$5 RETURNING *;`;
     let values = [movieli.title, movieli.release_date, movieli.poster_path, movieli.overview, id];
@@ -180,11 +181,6 @@ function Error(status, responseText) {
 function handelError(error, req, res) {
     let obj = new Error(500, `${error}`);
     res.status(500).send(obj);
-    // const err = {
-    //     status: 500,
-    //     messgae: error
-    // }
-    //  res.status(500).send(obj);
 }
 
 function handelError2(req, res) {

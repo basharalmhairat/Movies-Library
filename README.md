@@ -4,12 +4,14 @@
 **Author Name**: Bashar almhairat
 
 ## WRRC
-![moviescyccle](moviesdata/web request response cycle.png)
+![moviescyccle](requestesponsecycle.png)
 ## Overview
 
 ## Getting Started
 .to start first from ubnut using npm start
 then go to google chrom inter localhost:3000
+and for exacte page you should enter :
+localhost:3000/trending
 
 
 
