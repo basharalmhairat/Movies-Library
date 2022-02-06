@@ -8,23 +8,23 @@ const axios = require('axios');
 Server.use(cors());
 Server.use(express.json());
 const pg = require('pg');
-let url = `https://api.themoviedb.org/3/trending/all/week?api_key=${process.env.ABIKEY}&language=en-US`;
+
 
 
 const client = new pg.Client(process.env.DATABASE_URL);
 
-Server.get('/homepage1', homePage);
+Server.get('/', homePage);
 Server.get('/trending', trendmovie);
 Server.get('/search', searchmovie);
 Server.get('/tv', searchtv);
 Server.get('/episode', tvepisode);
-Server.post('/favorite', handelFavorite);
+Server.get('/favorite', handelFavorite);
 
 Server.post('/addmovie', handeladdmovie);
 Server.get('/getmovie', handelgetmovie);
 
 Server.get('/onemovie/:id', onemovieHandler);
-Server.put('/updatemovie/:id/:name', updatemovieHandler);
+Server.put('/updatemovie/:id', updatemovieHandler);
 Server.delete('/deletemovie/:id', deletemovieHandler);
 
 Server.use(handelError);
@@ -49,7 +49,12 @@ function homePage(req, res) {
     return res.status(200).json(arr);
 }
 
+function handelFavorite(req, res) {
+    return res.status(200).send("welcome to my favorite page");
+}
+
 function trendmovie(req, res) {
+    let url = `https://api.themoviedb.org/3/trending/all/week?api_key=${process.env.ABIKEY}&language=en-US`;
     let newArr = [];
     axios.get(url)
         .then((result) => {
@@ -66,16 +71,14 @@ function trendmovie(req, res) {
 
 
 function searchmovie(req, res) {
-    // let userSearch = req.query.userSearch;
-    // console.log(userSearch);
-    let url = `https://api.themoviedb.org/3/search/movie?api_key=${process.env.ABIKEY}&language=en-US&query=spiderman&page=2`;
-    console.log(url);
+    let newArr = [];
+    let url = `https://api.themoviedb.org/3/search/movie?api_key=${process.env.ABIKEY}&language=en-US&query=Dune&page=2`;
     axios.get(url)
-        .then(res => {
-            let tren = res.data.results.map(mov => {
-                 new Movihit(mov.id, mov.title, mov.release_date, mov.overview);
-            });
-            res.status(200).json(tren);
+        .then((result) => {
+            result.data.results.forEach(tren => {
+                newArr.push(new Movihit(tren.id, tren.title, tren.release_date, tren.overview));
+            })
+            res.status(200).json(newArr);
         }).catch(error => {
             handelError(error, req, res);
         });
@@ -83,39 +86,39 @@ function searchmovie(req, res) {
 
 
 function searchtv(req, res) {
-    let newTv = [];
-    let url = `https://api.themoviedb.org/3/tv/{tv_id}/season/{season_number}?api_key=${process.env.ABIKEY}&language=en-US`;
+    let newArr = [];
+    let url = `https://api.themoviedb.org/3/search/tv?api_key=${process.env.ABIKEY}&language=en-US&page=1&include_adult=false`;
     axios.get(url)
-        .then(res => {
-            resu.data.searchtv.forEach(tren => {
-                newTv.push(new Movihit(tren.id, tren.title, tren.release_date, tren.overview));
-
-            });
-            res.status(200).json(newTv);
-        }).catch(error => {
-            handelError(error, req, res);
-        });
+    .then((result) => {
+        result.data.results.forEach(tren => {
+            newArr.push(new Movihit(tren.id, tren.title, tren.release_date, tren.overview));
+        })
+        res.status(200).json(newArr);
+    }).catch((error) => {
+        handelError(error, req, res);
+    }
+    )
 }
 
 
 function tvepisode(req, res) {
-    let newep = [];
-    let url = `https://api.themoviedb.org/3/tv/{tv_id}/season/{season_number}/episode/{episode_number}?api_key=${process.env.ABIKEY}&language=en-US`;
+    let newArr = [];
+    let url = `https://api.themoviedb.org/3/search/person?api_key=${process.env.ABIKEY}&language=en-US&page=1&include_adult=false`;
     axios.get(url)
-        .then(res => {
-            resu.data.tvepisode.forEach(tren => {
-                newep.push(new Movihit(tren.id, tren.title, tren.release_date, tren.overview));
-
-            });
-            res.status(200).json(newep);
-        }).catch(error => {
-            handelError(error, req, res);
+    .then((result) => {
+        result.data.results.forEach(tren => {
+            newArr.push(new Movihit(tren.id, tren.title, tren.release_date, tren.overview));
         })
+        res.status(200).json(newArr);
+    }).catch((error) => {
+        handelError(error, req, res);
+    }
+    )
 }
 
 function handeladdmovie(req, res) {
     const mov = req.body;
-    let sql = `INSERT INTO movies(title,release_date,poster_path,overview) VALUES ($1,$2,$3,$4,) RETURNING *;`
+    let sql = `INSERT INTO movies(title,release_date,poster_path,overview) VALUES ($1,$2,$3,$4) RETURNING *;`
     let values = [mov.title, mov.release_date, mov.poster_path, mov.overview];
     client.query(sql, values).then(data => {
         res.status(200).json(data.rows);
@@ -137,19 +140,19 @@ function handelgetmovie(req, res) {
 
 function onemovieHandler(req, res) {
 
-    let sql = `SELECT * FROM movies WHERE id=${req.Dune.id};`;
-    client.query(sql).then(data => {
+    let sql = `SELECT * FROM movies WHERE id=${req.params.id};`;
+    client.query(sql).then(data=>{
         res.status(200).json(data.rows);
-    }).catch(error => {
-        handelError(error, req, res)
-    });
-}
+     }).catch(error=>{
+         errorHandler(error,req,res)
+     });
+ }
 
 function updatemovieHandler(req, res) {
-    const id = req.Dune.id;
-    console.log(req.Dune.name);
+     const id = req.params.id;
+    
     const movieli = req.body;
-    const sql = `UPDATE movies SET title =$1, release_date = $2, poster_path = $3 ,overview = $4,id=$7 RETURNING *;`;
+    const sql = `UPDATE movies SET title =$1, release_date = $2, poster_path = $3 ,overview =$4 WHERE id=$5 RETURNING *;`;
     let values = [movieli.title, movieli.release_date, movieli.poster_path, movieli.overview, id];
     client.query(sql, values).then(data => {
         res.status(200).json(data.rows);
@@ -168,9 +171,7 @@ function deletemovieHandler(req, res) {
     });
 }
 
-function handelFavorite(req, res) {
-    return res.status(200).send("welcome to my favorite page");
-}
+
 function Error(status, responseText) {
     this.status = status;
     this.responseText = responseText;
