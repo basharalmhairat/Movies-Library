@@ -2,7 +2,7 @@
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
-const PORT = 3000;
+const PORT = process.env.PORT;
 const Server = express();
 const axios = require('axios');
 Server.use(cors());
@@ -26,7 +26,6 @@ Server.get('/favorite', handelFavorite);
 
 Server.post('/addmovie', handeladdmovie);
 Server.get('/getmovie', handelgetmovie);
-
 Server.get('/onemovie/:id', onemovieHandler);
 Server.put('/updatemovie/:id', updatemovieHandler);
 Server.delete('/deletemovie/:id', deletemovieHandler);
