@@ -62,7 +62,7 @@ function trendmovie(req, res) {
     axios.get(url)
         .then((result) => {
             result.data.results.forEach(tren => {
-                newArr.push(new Movihit(tren.id, tren.title, tren.release_date, tren.overview));
+                newArr.push(new Movihit(tren.id, tren.title,tren.tren.poster_path,tren.release_date, tren.overview));
             })
             res.status(200).json(newArr);
         }).catch((error) => {
@@ -79,7 +79,7 @@ function searchmovie(req, res) {
     axios.get(url)
         .then((result) => {
             result.data.results.forEach(tren => {
-                newArr.push(new Movihit(tren.id, tren.title, tren.release_date, tren.overview));
+                newArr.push(new Movihit(tren.id, tren.title,tren.poster_path,tren.release_date, tren.overview));
             })
             res.status(200).json(newArr);
         }).catch(error => {
@@ -95,7 +95,7 @@ function movietoprated(req, res) {
     axios.get(url)
     .then((result) => {
         result.data.results.forEach(tren => {
-            newArr.push(new Movihit(tren.id,tren.name, tren.title, tren.release_date, tren.overview));
+            newArr.push(new Movihit(tren.id,tren.name, tren.title,tren.poster_path,tren.release_date, tren.overview));
         })
         res.status(200).json(newArr);
     }).catch((error) => {
@@ -112,7 +112,7 @@ function popularmovie(req, res) {
     
     .then((result) => {
         result.data.results.forEach(tren => {
-            newArr.push(new Movihit(tren.id, tren.title, tren.release_date, tren.overview));
+            newArr.push(new Movihit(tren.id, tren.title,tren.poster_path,tren.release_date, tren.overview));
         })
         res.status(200).json(newArr);
     }).catch((error) => {
