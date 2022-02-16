@@ -62,7 +62,7 @@ function trendmovie(req, res) {
     axios.get(url)
         .then((result) => {
             result.data.results.forEach(tren => {
-                newArr.push(new Movihit(tren.id, tren.title,tren.poster_path,tren.release_date, tren.overview));
+                newArr.push(new Movihit(tren.id, tren.title, tren.release_date,tren.poster_path, tren.overview));
             })
             res.status(200).json(newArr);
         }).catch((error) => {
@@ -79,7 +79,7 @@ function searchmovie(req, res) {
     axios.get(url)
         .then((result) => {
             result.data.results.forEach(tren => {
-                newArr.push(new Movihit(tren.id, tren.title,tren.poster_path,tren.release_date, tren.overview));
+                newArr.push(new Movihit(tren.id, tren.title,tren.release_date,tren.poster_path,tren.overview));
             })
             res.status(200).json(newArr);
         }).catch(error => {
@@ -95,7 +95,7 @@ function movietoprated(req, res) {
     axios.get(url)
     .then((result) => {
         result.data.results.forEach(tren => {
-            newArr.push(new Movihit(tren.id,tren.name, tren.title,tren.poster_path,tren.release_date, tren.overview));
+            newArr.push(new Movihit(tren.id,tren.title,tren.name, tren.release_date,tren.poster_path, tren.overview));
         })
         res.status(200).json(newArr);
     }).catch((error) => {
@@ -112,7 +112,7 @@ function popularmovie(req, res) {
     
     .then((result) => {
         result.data.results.forEach(tren => {
-            newArr.push(new Movihit(tren.id, tren.title,tren.poster_path,tren.release_date, tren.overview));
+            newArr.push(new Movihit(tren.id, tren.title,tren.release_date,tren.poster_path, tren.overview));
         })
         res.status(200).json(newArr);
     }).catch((error) => {
@@ -124,7 +124,7 @@ function popularmovie(req, res) {
 function handeladdmovie(req, res) {
     const mov = req.body;
     let sql = `INSERT INTO movies(title,release_date,poster_path,overview) VALUES ($1,$2,$3,$4) RETURNING *;`
-    let values = [mov.title, mov.release_date, mov.poster_path, mov.overview];
+    let values = [mov.title, mov.release_date,mov.poster_path,  mov.overview];
     client.query(sql, values).then(data => {
         res.status(200).json(data.rows);
     }).catch(error => {
@@ -157,7 +157,7 @@ function updatemovieHandler(req, res) {
      const id = req.params.id;
     const movieli = req.body;
     const sql = `UPDATE movies SET title =$1, release_date = $2, poster_path = $3 ,overview =$4 WHERE id=$5 RETURNING *;`;
-    let values = [movieli.title, movieli.release_date, movieli.poster_path, movieli.overview, id];
+    let values = [movieli.title,movieli.release_date,movieli.poster_path, movieli.overview, id];
     client.query(sql, values).then(data => {
         res.status(200).json(data.rows);
     }).catch(error => {
