@@ -62,7 +62,7 @@ function trendmovie(req, res) {
     axios.get(url)
         .then((result) => {
             result.data.results.forEach(tren => {
-                newArr.push(new Movihit(tren.id, tren.title,tren.tren.poster_path,tren.release_date, tren.overview));
+                newArr.push(new Movihit(tren.id, tren.title,tren.poster_path,tren.release_date, tren.overview));
             })
             res.status(200).json(newArr);
         }).catch((error) => {
